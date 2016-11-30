@@ -14,4 +14,8 @@ func main() {
 		return
 	}
 	c.Encrypt(cipherText, plainText)
+	fmt.Println(cipherText)
+
+	c.Decrypt(plainText, cipherText)
+	fmt.Println(string(plainText))
 }
