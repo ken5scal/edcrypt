@@ -24,6 +24,8 @@ func main() {
 	fmt.Println(cipherText)
 	cipherText, _ = EncryptByCBCMode(key, "12345678912345671234123412341234")
 	fmt.Println(cipherText)
+
+	fmt.Println(DecryptByCBCMode(key, cipherText))
 }
 
 // Only AES at this moment
@@ -52,6 +54,19 @@ func EncryptByCBCMode(key []byte, plainText string) ([]byte, error) {
 
 	cbc := cipher.NewCBCEncrypter(block, iv)
 	cbc.CryptBlocks(cipherText[aes.BlockSize:], []byte(plainText))
+
+
+	block, err = aes.NewCipher(key)
+
+
+	iv = cipherText[:aes.BlockSize] // assuming iv is stored in the first block of ciphertext
+	cipherText = cipherText[aes.BlockSize:]
+	plainText2 := make([]byte, len(cipherText))
+
+	cbc = cipher.NewCBCDecrypter(block, iv)
+	cbc.CryptBlocks(cipherText, plainText2)
+	fmt.Println(plainText)
+
 	return cipherText, nil
 }
 
@@ -64,6 +79,7 @@ func DecryptByBlockSecretKey(key []byte, cipherText []byte) string {
 
 	plainText := make([]byte, aes.BlockSize)
 	c.Decrypt(plainText, cipherText)
+
 	return string(plainText)
 }
 
@@ -72,14 +88,12 @@ func DecryptByCBCMode(key []byte, cipherText []byte) (string ,error) {
 		return "", err
 	}
 
-	iv := make([]byte, aes.BlockSize) // Unique iv is required
-	_, err = rand.Read(iv); if err != nil {
-		return "", err
-	}
-
-
+	iv := cipherText[:aes.BlockSize] // assuming iv is stored in the first block of ciphertext
+	cipherText = cipherText[aes.BlockSize:]
 	plainText := make([]byte, len(cipherText))
+
 	cbc := cipher.NewCBCDecrypter(block, iv)
 	cbc.CryptBlocks(cipherText, plainText)
+	fmt.Println(plainText)
 	return string(plainText), nil
 }
