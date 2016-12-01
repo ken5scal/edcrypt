@@ -25,7 +25,8 @@ func main() {
 	cipherText, _ = EncryptByCBCMode(key, "12345678912345671234123412341234")
 	fmt.Println(cipherText)
 
-	fmt.Println(DecryptByCBCMode(key, cipherText))
+	plainText, _ = DecryptByCBCMode(key, cipherText)
+	fmt.Println(plainText)
 }
 
 // Only AES at this moment
@@ -55,18 +56,6 @@ func EncryptByCBCMode(key []byte, plainText string) ([]byte, error) {
 	cbc := cipher.NewCBCEncrypter(block, iv)
 	cbc.CryptBlocks(cipherText[aes.BlockSize:], []byte(plainText))
 
-
-	block, err = aes.NewCipher(key)
-
-
-	iv = cipherText[:aes.BlockSize] // assuming iv is stored in the first block of ciphertext
-	cipherText = cipherText[aes.BlockSize:]
-	plainText2 := make([]byte, len(cipherText))
-
-	cbc = cipher.NewCBCDecrypter(block, iv)
-	cbc.CryptBlocks(cipherText, plainText2)
-	fmt.Println(plainText)
-
 	return cipherText, nil
 }
 
@@ -88,12 +77,17 @@ func DecryptByCBCMode(key []byte, cipherText []byte) (string ,error) {
 		return "", err
 	}
 
+	if len(cipherText) < aes.BlockSize {
+		panic("cipher text must be longer than blocksize")
+	} else if len(cipherText) % aes.BlockSize != 0 {
+		panic("cipher text must be multiple of blocksize(128bit)")
+	}
 	iv := cipherText[:aes.BlockSize] // assuming iv is stored in the first block of ciphertext
 	cipherText = cipherText[aes.BlockSize:]
 	plainText := make([]byte, len(cipherText))
 
 	cbc := cipher.NewCBCDecrypter(block, iv)
-	cbc.CryptBlocks(cipherText, plainText)
+	cbc.CryptBlocks(plainText, cipherText)
 	fmt.Println(plainText)
 	return string(plainText), nil
 }
