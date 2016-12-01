@@ -42,14 +42,16 @@ func EncryptByCBCMode(key []byte, plainText string) ([]byte, error) {
 		return nil, err
 	}
 
-	cipherText := make([]byte, len(plainText)) // cipher text must be larger than plaintext
-	iv := make([]byte, aes.BlockSize) // Unique iv is required
+	// TODO: Im not still understanding why many example says "Secure cipherText size to include IV"
+	// I think I understand. return cipher text to include iv for decrypting it later
+	cipherText := make([]byte,  aes.BlockSize + len(plainText)) // cipher text must be larger than plaintext
+	iv := cipherText[:aes.BlockSize] // Unique iv is required
 	_, err = rand.Read(iv); if err != nil {
 		return nil, err
 	}
 
 	cbc := cipher.NewCBCEncrypter(block, iv)
-	cbc.CryptBlocks(cipherText, []byte(plainText))
+	cbc.CryptBlocks(cipherText[aes.BlockSize:], []byte(plainText))
 	return cipherText, nil
 }
 
@@ -63,4 +65,21 @@ func DecryptByBlockSecretKey(key []byte, cipherText []byte) string {
 	plainText := make([]byte, aes.BlockSize)
 	c.Decrypt(plainText, cipherText)
 	return string(plainText)
+}
+
+func DecryptByCBCMode(key []byte, cipherText []byte) (string ,error) {
+	block , err := aes.NewCipher(key); if err != nil {
+		return "", err
+	}
+
+	iv := make([]byte, aes.BlockSize) // Unique iv is required
+	_, err = rand.Read(iv); if err != nil {
+		return "", err
+	}
+
+
+	plainText := make([]byte, len(cipherText))
+	cbc := cipher.NewCBCDecrypter(block, iv)
+	cbc.CryptBlocks(cipherText, plainText)
+	return string(plainText), nil
 }
