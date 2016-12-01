@@ -3,6 +3,8 @@ package main
 import (
 	"crypto/aes"
 	"fmt"
+	"crypto/cipher"
+	"crypto/rand"
 )
 
 func main() {
@@ -17,6 +19,11 @@ func main() {
 
 	plainText = DecryptByBlockSecretKey(key, cipherText)
 	fmt.Println(plainText)
+
+	cipherText, _ = EncryptByCBCMode(key, "1234567891234567")
+	fmt.Println(cipherText)
+	cipherText, _ = EncryptByCBCMode(key, "12345678912345671234123412341234")
+	fmt.Println(cipherText)
 }
 
 // Only AES at this moment
@@ -27,6 +34,22 @@ func EncryptByBlockSecretKey(key []byte, plainText string) ([]byte, error) {
 	cipherText := make([]byte, aes.BlockSize)
 
 	c.Encrypt(cipherText, []byte(plainText)) // Input/Output must be 16bits large
+	return cipherText, nil
+}
+
+func EncryptByCBCMode(key []byte, plainText string) ([]byte, error) {
+	block, err := aes.NewCipher(key); if err != nil {
+		return nil, err
+	}
+
+	cipherText := make([]byte, len(plainText)) // cipher text must be larger than plaintext
+	iv := make([]byte, aes.BlockSize) // Unique iv is required
+	_, err = rand.Read(iv); if err != nil {
+		return nil, err
+	}
+
+	cbc := cipher.NewCBCEncrypter(block, iv)
+	cbc.CryptBlocks(cipherText, []byte(plainText))
 	return cipherText, nil
 }
 
