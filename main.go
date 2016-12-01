@@ -20,9 +20,9 @@ func main() {
 	plainText = DecryptByBlockSecretKey(key, cipherText)
 	fmt.Println(plainText)
 
-	cipherText, _ = EncryptByCBCMode(key, "1234567891234567")
+	cipherText, _ = EncryptByCBCMode(key, "1234567891234567") // 16bye
 	fmt.Println(cipherText)
-	cipherText, _ = EncryptByCBCMode(key, "12345678912345671234123412341234")
+	cipherText, _ = EncryptByCBCMode(key, "12345678912345671234123412341234") // 32byte
 	fmt.Println(cipherText)
 
 	plainText, _ = DecryptByCBCMode(key, cipherText)
@@ -41,6 +41,10 @@ func EncryptByBlockSecretKey(key []byte, plainText string) ([]byte, error) {
 }
 
 func EncryptByCBCMode(key []byte, plainText string) ([]byte, error) {
+	if len(plainText) % aes.BlockSize != 0 {
+		panic("Plain text must be multiple of 128bit")
+	}
+
 	block, err := aes.NewCipher(key); if err != nil {
 		return nil, err
 	}
