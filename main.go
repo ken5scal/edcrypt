@@ -14,6 +14,11 @@ func main() {
 	fmt.Println(EncryptByBlockSecretKey(key, plainText))
 
 	key = []byte("1234123412341234") // AES-128
+	fmt.Println(EncryptByBlockSecretKey(key, "12341234123412345")) // Longer than 16 byte
+
+	key = []byte("1234123412341234") // AES-128
+    fmt.Println(EncryptByBlockSecretKey(key, "123412341234123")) // Shorter than 16 byte
+
 	cipherText,_ := EncryptByBlockSecretKey(key, plainText)
 	fmt.Println(cipherText)
 
