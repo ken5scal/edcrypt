@@ -34,7 +34,7 @@ func main() {
 	plainText, _ = DecryptByCBCMode(key, cipherText)
 	fmt.Println(plainText)
 
-	cipherText, _ = EncryptByCBCMode(key, "123456781234567") // 16bye
+	cipherText, _ = EncryptByCBCMode(key, "12345678") // 8bye
 	fmt.Println(cipherText)
 	fmt.Println(DecryptByCBCMode(key, cipherText))
 }
@@ -51,7 +51,7 @@ func EncryptByBlockSecretKey(key []byte, plainText string) ([]byte, error) {
 }
 
 func PadByPkcs7(data []byte) []byte {
-	padSize := len(data)
+	padSize := aes.BlockSize
 	if len(data) % aes.BlockSize != 0 {
 		padSize = aes.BlockSize - (len(data)) % aes.BlockSize
 	}
@@ -75,6 +75,7 @@ func EncryptByCBCMode(key []byte, plainText string) ([]byte, error) {
 	}
 
 	paddedPlaintext := PadByPkcs7([]byte(plainText))
+	fmt.Printf("Padded Plain Text in byte format: %v\n", paddedPlaintext)
 	cipherText := make([]byte, aes.BlockSize + len(paddedPlaintext)) // cipher text must be larger than plaintext
 	iv := cipherText[:aes.BlockSize] // Unique iv is required
 	_, err = rand.Read(iv); if err != nil {
@@ -116,7 +117,6 @@ func DecryptByCBCMode(key []byte, cipherText []byte) (string, error) {
 
 	cbc := cipher.NewCBCDecrypter(block, iv)
 	cbc.CryptBlocks(plainText, cipherText)
-	fmt.Println(plainText)
 	fmt.Println(UnPadByPkcs7(plainText))
 	return string(UnPadByPkcs7(plainText)), nil
 }
