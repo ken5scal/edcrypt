@@ -105,3 +105,14 @@ func DecryptByCBCMode(key []byte, cipherText []byte) (string, error) {
 	fmt.Println(plainText)
 	return string(plainText), nil
 }
+
+
+//# Padding
+//現在だと、結局16の倍数にしか対応できていないので、そうでない平文をAESで暗号化するにはパディングをつけてやる必要がある。ただし、暗号文+パディングを繰り返し送ることで平文を一部推測できてしまう攻撃手法(パディングオラクル攻撃)があるので、復号しようとしている暗号文が正しいサブジェクトによって生成されたものかを認証することが必要になる(HMAC)。HMACは又今後書く。
+//
+//共通鍵方式のPaddingには以下の種類があるようだ(wiki調べ)
+//* Bit Padding, Byte Padding, ANSI X.923, ISO 10126, PKCS#7, ISO/IEC 7816-4, Zero padding
+//
+//白状すると、各Paddingが何に適しているかはわからないし、調べる気力もなかった。ただPKCS #7は、RSA公開鍵方式で使われていたはずなので、信頼と実績でそれを使ってみようと思う。ただ、Goの場合は、Padding関係のパッケージが容易されてないので、自前実装することになる。~~メンドクサイ~~
+//
+
