@@ -98,7 +98,6 @@ func EncryptByCBCMode(key []byte, plainText string) ([]byte, error) {
 	cbc := cipher.NewCBCEncrypter(block, iv)
 	cbc.CryptBlocks(cipherText[aes.BlockSize:], paddedPlaintext)
 	cipherTextBase64 := base64.StdEncoding.EncodeToString(cipherText)
-	fmt.Printf("Base64 cipher text: %v\n", cipherTextBase64)
 	return []byte(cipherTextBase64), nil
 }
 
