@@ -16,10 +16,10 @@ func main() {
 	key = []byte("1234123412341234") // AES-128
 	fmt.Println(EncryptByBlockSecretKey(key, "12341234123412345")) // Longer than 16 byte
 
-    // This will result in Panic
-    // fmt.Println(EncryptByBlockSecretKey(key, "123412341234123")) // Shorter than 16 byte
+	// This will result in Panic
+	// fmt.Println(EncryptByBlockSecretKey(key, "123412341234123")) // Shorter than 16 byte
 
-	cipherText,_ := EncryptByBlockSecretKey(key, plainText)
+	cipherText, _ := EncryptByBlockSecretKey(key, plainText)
 	fmt.Println(cipherText)
 
 	plainText = DecryptByBlockSecretKey(key, cipherText)
@@ -45,6 +45,11 @@ func EncryptByBlockSecretKey(key []byte, plainText string) ([]byte, error) {
 	return cipherText, nil
 }
 
+func AddPadding(plainText string) string {
+	padSize := aes.BlockSize - (plainText) % aes.BlockSize
+	return plainText
+}
+
 func EncryptByCBCMode(key []byte, plainText string) ([]byte, error) {
 	if len(plainText) % aes.BlockSize != 0 {
 		panic("Plain text must be multiple of 128bit")
@@ -56,7 +61,7 @@ func EncryptByCBCMode(key []byte, plainText string) ([]byte, error) {
 
 	// TODO: Im not still understanding why many example says "Secure cipherText size to include IV"
 	// I think I understand. return cipher text to include iv for decrypting it later
-	cipherText := make([]byte,  aes.BlockSize + len(plainText)) // cipher text must be larger than plaintext
+	cipherText := make([]byte, aes.BlockSize + len(plainText)) // cipher text must be larger than plaintext
 	iv := cipherText[:aes.BlockSize] // Unique iv is required
 	_, err = rand.Read(iv); if err != nil {
 		return nil, err
@@ -81,8 +86,8 @@ func DecryptByBlockSecretKey(key []byte, cipherText []byte) string {
 	return string(plainText)
 }
 
-func DecryptByCBCMode(key []byte, cipherText []byte) (string ,error) {
-	block , err := aes.NewCipher(key); if err != nil {
+func DecryptByCBCMode(key []byte, cipherText []byte) (string, error) {
+	block, err := aes.NewCipher(key); if err != nil {
 		return "", err
 	}
 
