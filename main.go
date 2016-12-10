@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"crypto/cipher"
 	"crypto/rand"
+	"bytes"
 )
 
 func main() {
@@ -32,6 +33,10 @@ func main() {
 
 	plainText, _ = DecryptByCBCMode(key, cipherText)
 	fmt.Println(plainText)
+
+	cipherText, _ = EncryptByCBCMode(key, "123456781234567") // 16bye
+	fmt.Println(cipherText)
+	fmt.Println(DecryptByCBCMode(key, cipherText))
 }
 
 // Only AES at this moment
@@ -45,30 +50,39 @@ func EncryptByBlockSecretKey(key []byte, plainText string) ([]byte, error) {
 	return cipherText, nil
 }
 
-func AddPadding(plainText string) string {
-	padSize := aes.BlockSize - (plainText) % aes.BlockSize
-	return plainText
+func PadByPkcs7(data []byte) []byte {
+	padSize := len(data)
+	if len(data) % aes.BlockSize != 0 {
+		padSize = aes.BlockSize - (len(data)) % aes.BlockSize
+	}
+
+	pad := bytes.Repeat([]byte{byte(padSize)}, padSize)
+	return append(data, pad...) // Dots represent it unpack Slice(pad) into individual bytes
+}
+
+func UnPadByPkcs7(data []byte) []byte {
+	padSize := int(data[len(data) - 1])
+	return data[:len(data) - padSize]
 }
 
 func EncryptByCBCMode(key []byte, plainText string) ([]byte, error) {
-	if len(plainText) % aes.BlockSize != 0 {
-		panic("Plain text must be multiple of 128bit")
-	}
+	//if len(plainText) % aes.BlockSize != 0 {
+	//	panic("Plain text must be multiple of 128bit")
+	//}
 
 	block, err := aes.NewCipher(key); if err != nil {
 		return nil, err
 	}
 
-	// TODO: Im not still understanding why many example says "Secure cipherText size to include IV"
-	// I think I understand. return cipher text to include iv for decrypting it later
-	cipherText := make([]byte, aes.BlockSize + len(plainText)) // cipher text must be larger than plaintext
+	paddedPlaintext := PadByPkcs7([]byte(plainText))
+	cipherText := make([]byte, aes.BlockSize + len(paddedPlaintext)) // cipher text must be larger than plaintext
 	iv := cipherText[:aes.BlockSize] // Unique iv is required
 	_, err = rand.Read(iv); if err != nil {
 		return nil, err
 	}
 
 	cbc := cipher.NewCBCEncrypter(block, iv)
-	cbc.CryptBlocks(cipherText[aes.BlockSize:], []byte(plainText))
+	cbc.CryptBlocks(cipherText[aes.BlockSize:], paddedPlaintext)
 
 	return cipherText, nil
 }
@@ -103,7 +117,8 @@ func DecryptByCBCMode(key []byte, cipherText []byte) (string, error) {
 	cbc := cipher.NewCBCDecrypter(block, iv)
 	cbc.CryptBlocks(plainText, cipherText)
 	fmt.Println(plainText)
-	return string(plainText), nil
+	fmt.Println(UnPadByPkcs7(plainText))
+	return string(UnPadByPkcs7(plainText)), nil
 }
 
 
