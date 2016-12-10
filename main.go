@@ -26,17 +26,29 @@ func main() {
 	plainText = DecryptByBlockSecretKey(key, cipherText)
 	fmt.Println(plainText)
 
-	cipherText, _ = EncryptByCBCMode(key, "1234567891234567") // 16bye
-	fmt.Println(cipherText)
-	cipherText, _ = EncryptByCBCMode(key, "12345678912345671234123412341234") // 32byte
-	fmt.Println(cipherText)
+	fmt.Println()
 
-	plainText, _ = DecryptByCBCMode(key, cipherText)
-	fmt.Println(plainText)
+	plainText ="1234567891234567"
+	cipherText, _ = EncryptByCBCMode(key, plainText) // 16bye
+	fmt.Printf("Plaintext %v is encrypted into %v:\n", plainText, cipherText)
+	decryptedText,_ := DecryptByCBCMode(key, cipherText)
+	fmt.Printf("Decrypted Text: %v\n ", decryptedText)
 
-	cipherText, _ = EncryptByCBCMode(key, "12345678") // 8bye
-	fmt.Println(cipherText)
-	fmt.Println(DecryptByCBCMode(key, cipherText))
+	fmt.Println()
+
+	plainText = "12345678912345671234123412341234"
+	cipherText, _ = EncryptByCBCMode(key, plainText) // 32byte
+	fmt.Printf("Plaintext %v is encrypted into %v:\n", plainText, cipherText)
+	decryptedText,_ = DecryptByCBCMode(key, cipherText)
+	fmt.Printf("Decrypted Text: %v\n ", decryptedText)
+
+	fmt.Println()
+
+	plainText = "12345"
+	cipherText, _ = EncryptByCBCMode(key, plainText)
+	fmt.Printf("Plaintext %v is encrypted into %v:\n", plainText, cipherText)
+	decryptedText,_ = DecryptByCBCMode(key, cipherText)
+	fmt.Printf("Decrypted Text: %v\n ", decryptedText)
 }
 
 // Only AES at this moment
@@ -117,7 +129,6 @@ func DecryptByCBCMode(key []byte, cipherText []byte) (string, error) {
 
 	cbc := cipher.NewCBCDecrypter(block, iv)
 	cbc.CryptBlocks(plainText, cipherText)
-	fmt.Println(UnPadByPkcs7(plainText))
 	return string(UnPadByPkcs7(plainText)), nil
 }
 
