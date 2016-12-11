@@ -79,10 +79,6 @@ func UnPadByPkcs7(data []byte) []byte {
 }
 
 func EncryptByCBCMode(key []byte, plainText string) ([]byte, error) {
-	//if len(plainText) % aes.BlockSize != 0 {
-	//	panic("Plain text must be multiple of 128bit")
-	//}
-
 	block, err := aes.NewCipher(key); if err != nil {
 		return nil, err
 	}
