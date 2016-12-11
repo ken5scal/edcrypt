@@ -6,7 +6,6 @@ import (
 	"crypto/cipher"
 	"crypto/rand"
 	"bytes"
-	"encoding/base64"
 )
 
 func main() {
@@ -97,8 +96,7 @@ func EncryptByCBCMode(key []byte, plainText string) ([]byte, error) {
 
 	cbc := cipher.NewCBCEncrypter(block, iv)
 	cbc.CryptBlocks(cipherText[aes.BlockSize:], paddedPlaintext)
-	cipherTextBase64 := base64.StdEncoding.EncodeToString(cipherText)
-	return []byte(cipherTextBase64), nil
+	return []byte(cipherText), nil
 }
 
 // Only AES at this moment
@@ -114,12 +112,10 @@ func DecryptByBlockSecretKey(key []byte, cipherText []byte) string {
 	return string(plainText)
 }
 
-func DecryptByCBCMode(key []byte, cipherTextBase64 []byte) (string, error) {
+func DecryptByCBCMode(key []byte, cipherText []byte) (string, error) {
 	block, err := aes.NewCipher(key); if err != nil {
 		return "", err
 	}
-
-	cipherText, _ := base64.StdEncoding.DecodeString(string(cipherTextBase64))
 
 	if len(cipherText) < aes.BlockSize {
 		panic("cipher text must be longer than blocksize")
