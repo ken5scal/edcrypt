@@ -28,22 +28,21 @@ func main() {
 	//plainText = DecryptByBlockSecretKey(key, cipherText)
 	//fmt.Println(plainText)
 
-	fmt.Println()
-
 	//plainText = "1234567891234567"
 	//cipherText, _ = EncryptByCBCMode(key, plainText) // 16bye
 	//fmt.Printf("Plaintext %v is encrypted into %v:\n", plainText, cipherText)
 	//decryptedText, _ := DecryptByCBCMode(key, cipherText)
 	//fmt.Printf("Decrypted Text: %v\n ", decryptedText)
 
-	fmt.Println()
-
 	plainText = "12345678912345671234123412341234"
 	cipherText, _ := EncryptByCBCMode(key, plainText) // 32byte
+
+	fmt.Println()
+
 	decryptedText, _ := DecryptByCBCMode(key, cipherText)
 	fmt.Printf("Decrypted Text: %v\n ", decryptedText)
 
-	fmt.Println()
+
 
 	//plainText = "12345"
 	//cipherText, _ = EncryptByCBCMode(key, plainText)
@@ -121,6 +120,9 @@ func DecryptByBlockSecretKey(key []byte, cipherText []byte) string {
 }
 
 func DecryptByCBCMode(key []byte, cipherText []byte) (string, error) {
+
+	plainText := make([]byte, len(cipherText))
+
 	block, err := aes.NewCipher(key); if err != nil {
 		return "", err
 	}
@@ -133,7 +135,10 @@ func DecryptByCBCMode(key []byte, cipherText []byte) (string, error) {
 	iv := cipherText[:aes.BlockSize] // assuming iv is stored in the first block of ciphertext
 	mac_message := cipherText[len(cipherText) - sha256.Size:]
 	cipherText = cipherText[aes.BlockSize:len(cipherText) - sha256.Size]
-	plainText := make([]byte, len(cipherText))
+
+	fmt.Printf("IV: %v\n",iv)
+	fmt.Printf("MAC: %v\n", mac_message)
+	fmt.Printf("Cipher: %v\n",cipherText)
 
 	mac := hmac.New(sha256.New, []byte("12345678912345678912345678912345")) // sha256のhmac_key(32 byte)
 	mac.Write(cipherText)
