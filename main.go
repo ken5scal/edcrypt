@@ -6,6 +6,8 @@ import (
 	"crypto/cipher"
 	"crypto/rand"
 	"bytes"
+	"crypto/hmac"
+	"crypto/sha256"
 )
 
 func main() {
@@ -28,27 +30,27 @@ func main() {
 
 	fmt.Println()
 
-	plainText = "1234567891234567"
-	cipherText, _ = EncryptByCBCMode(key, plainText) // 16bye
-	fmt.Printf("Plaintext %v is encrypted into %v:\n", plainText, cipherText)
-	decryptedText, _ := DecryptByCBCMode(key, cipherText)
-	fmt.Printf("Decrypted Text: %v\n ", decryptedText)
+	//plainText = "1234567891234567"
+	//cipherText, _ = EncryptByCBCMode(key, plainText) // 16bye
+	//fmt.Printf("Plaintext %v is encrypted into %v:\n", plainText, cipherText)
+	//decryptedText, _ := DecryptByCBCMode(key, cipherText)
+	//fmt.Printf("Decrypted Text: %v\n ", decryptedText)
 
 	fmt.Println()
 
 	plainText = "12345678912345671234123412341234"
 	cipherText, _ = EncryptByCBCMode(key, plainText) // 32byte
 	fmt.Printf("Plaintext %v is encrypted into %v:\n", plainText, cipherText)
-	decryptedText, _ = DecryptByCBCMode(key, cipherText)
-	fmt.Printf("Decrypted Text: %v\n ", decryptedText)
+	//decryptedText, _ = DecryptByCBCMode(key, cipherText)
+	//fmt.Printf("Decrypted Text: %v\n ", decryptedText)
 
 	fmt.Println()
 
-	plainText = "12345"
-	cipherText, _ = EncryptByCBCMode(key, plainText)
-	fmt.Printf("Plaintext %v is encrypted into %v:\n", plainText, cipherText)
-	decryptedText, _ = DecryptByCBCMode(key, cipherText)
-	fmt.Printf("Decrypted Text: %v\n ", decryptedText)
+	//plainText = "12345"
+	//cipherText, _ = EncryptByCBCMode(key, plainText)
+	//fmt.Printf("Plaintext %v is encrypted into %v:\n", plainText, cipherText)
+	//decryptedText, _ = DecryptByCBCMode(key, cipherText)
+	//fmt.Printf("Decrypted Text: %v\n ", decryptedText)
 }
 
 // Only AES at this moment
@@ -96,6 +98,11 @@ func EncryptByCBCMode(key []byte, plainText string) ([]byte, error) {
 
 	cbc := cipher.NewCBCEncrypter(block, iv)
 	cbc.CryptBlocks(cipherText[aes.BlockSize:], paddedPlaintext)
+
+	mac := hmac.New(sha256.New, []byte("12345678912345678912345678912345"))
+	mac.Write(cipherText)
+	cipherText = mac.Sum(cipherText)
+
 	return []byte(cipherText), nil
 }
 
