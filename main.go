@@ -96,14 +96,14 @@ func EncryptByCBCMode(key []byte, plainText string) ([]byte, error) {
 	cbc := cipher.NewCBCEncrypter(block, iv)
 	cbc.CryptBlocks(cipherText[aes.BlockSize:], paddedPlaintext)
 
-	fmt.Printf("IV: %v\n",iv)
-	fmt.Printf("Cipher Text With IV: %v\n",cipherText)
+	fmt.Printf("IV: %v\n", iv)
+	fmt.Printf("Cipher Text With IV: %v\n", cipherText)
 
 	mac := hmac.New(sha256.New, []byte("12345678912345678912345678912345")) // sha256のhmac_key(32 byte)
 	mac.Write(cipherText)
 	cipherText = mac.Sum(cipherText)
 
-	fmt.Printf("Cipher Text Appended MAC: %v\n",cipherText)
+	fmt.Printf("Cipher Text Appended MAC: %v\n", cipherText)
 
 	return []byte(cipherText), nil
 }
@@ -122,33 +122,32 @@ func DecryptByBlockSecretKey(key []byte, cipherText []byte) string {
 }
 
 func DecryptByCBCMode(key []byte, cipherText []byte) (string, error) {
-	block, err := aes.NewCipher(key); if err != nil {
-		return "", err
-	}
-
 	if len(cipherText) < aes.BlockSize {
 		panic("cipher text must be longer than blocksize")
 	} else if len(cipherText) % aes.BlockSize != 0 {
 		panic("cipher text must be multiple of blocksize(128bit)")
 	}
-	iv := cipherText[:aes.BlockSize] // assuming iv is stored in the first block of ciphertext
-	mac_message := cipherText[len(cipherText) - sha256.Size:]
-	cipherText = cipherText[:len(cipherText) - sha256.Size]
 
-	fmt.Printf("IV: %v\n",iv)
+	macSize := len(cipherText) - sha256.Size
+	mac_message := cipherText[macSize:]
+	cipherText = cipherText[:macSize]    // Stripping MAC message Out
+
 	fmt.Printf("MAC: %v\n", mac_message)
-	fmt.Printf("Cipher: %v\n",cipherText)
+	fmt.Printf("PAD + cipherText: %v\n", cipherText)
 
 	mac := hmac.New(sha256.New, []byte("12345678912345678912345678912345")) // sha256のhmac_key(32 byte)
 	mac.Write(cipherText)
 	expectedMAC := mac.Sum(nil)
 
-	if !hmac.Equal(mac_message, expectedMAC){
+	if !hmac.Equal(mac_message, expectedMAC) {
 		return "", errors.New("Failed Decrypting")
 	}
 
-	fmt.Printf("Cipher: %v\n",cipherText)
-	plainText := make([]byte, len(cipherText) - len(iv))
+	iv := cipherText[:aes.BlockSize]
+	plainText := make([]byte, len(cipherText[aes.BlockSize:]))
+	block, err := aes.NewCipher(key); if err != nil {
+		return "", err
+	}
 	cbc := cipher.NewCBCDecrypter(block, iv)
 	cbc.CryptBlocks(plainText, cipherText[aes.BlockSize:])
 	return string(UnPadByPkcs7(plainText)), nil
