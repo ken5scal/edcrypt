@@ -19,7 +19,7 @@ func main() {
 	fmt.Println(EncryptByBlockSecretKey(key, "12341234123412345")) // Longer than 16 byte
 
 	// This will result in Panic
-	// fmt.Println(EncryptByBlockSecretKey(key, "123412341234123")) // Shorter than 16 byte
+	//fmt.Println(EncryptByBlockSecretKey(key, "123412341234123")) // Shorter than 16 byte
 
 	cipherText, _ := EncryptByBlockSecretKey(key, plainText)
 	fmt.Println(cipherText)
@@ -29,10 +29,10 @@ func main() {
 
 	fmt.Println()
 
-	plainText ="1234567891234567"
+	plainText = "1234567891234567"
 	cipherText, _ = EncryptByCBCMode(key, plainText) // 16bye
 	fmt.Printf("Plaintext %v is encrypted into %v:\n", plainText, cipherText)
-	decryptedText,_ := DecryptByCBCMode(key, cipherText)
+	decryptedText, _ := DecryptByCBCMode(key, cipherText)
 	fmt.Printf("Decrypted Text: %v\n ", decryptedText)
 
 	fmt.Println()
@@ -40,7 +40,7 @@ func main() {
 	plainText = "12345678912345671234123412341234"
 	cipherText, _ = EncryptByCBCMode(key, plainText) // 32byte
 	fmt.Printf("Plaintext %v is encrypted into %v:\n", plainText, cipherText)
-	decryptedText,_ = DecryptByCBCMode(key, cipherText)
+	decryptedText, _ = DecryptByCBCMode(key, cipherText)
 	fmt.Printf("Decrypted Text: %v\n ", decryptedText)
 
 	fmt.Println()
@@ -48,7 +48,7 @@ func main() {
 	plainText = "12345"
 	cipherText, _ = EncryptByCBCMode(key, plainText)
 	fmt.Printf("Plaintext %v is encrypted into %v:\n", plainText, cipherText)
-	decryptedText,_ = DecryptByCBCMode(key, cipherText)
+	decryptedText, _ = DecryptByCBCMode(key, cipherText)
 	fmt.Printf("Decrypted Text: %v\n ", decryptedText)
 }
 
@@ -134,14 +134,3 @@ func DecryptByCBCMode(key []byte, cipherTextBase64 []byte) (string, error) {
 	cbc.CryptBlocks(plainText, cipherText)
 	return string(UnPadByPkcs7(plainText)), nil
 }
-
-
-//# Padding
-//現在だと、結局16の倍数にしか対応できていないので、そうでない平文をAESで暗号化するにはパディングをつけてやる必要がある。ただし、暗号文+パディングを繰り返し送ることで平文を一部推測できてしまう攻撃手法(パディングオラクル攻撃)があるので、復号しようとしている暗号文が正しいサブジェクトによって生成されたものかを認証することが必要になる(HMAC)。HMACは又今後書く。
-//
-//共通鍵方式のPaddingには以下の種類があるようだ(wiki調べ)
-//* Bit Padding, Byte Padding, ANSI X.923, ISO 10126, PKCS#7, ISO/IEC 7816-4, Zero padding
-//
-//白状すると、各Paddingが何に適しているかはわからないし、調べる気力もなかった。ただPKCS #7は、RSA公開鍵方式で使われていたはずなので、信頼と実績でそれを使ってみようと思う。ただ、Goの場合は、Padding関係のパッケージが容易されてないので、自前実装することになる。~~メンドクサイ~~
-//
-
