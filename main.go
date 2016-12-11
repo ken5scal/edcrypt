@@ -40,7 +40,6 @@ func main() {
 
 	plainText = "12345678912345671234123412341234"
 	cipherText, _ := EncryptByCBCMode(key, plainText) // 32byte
-	fmt.Printf("Plaintext %v is encrypted into %v:\n", plainText, cipherText)
 	decryptedText, _ := DecryptByCBCMode(key, cipherText)
 	fmt.Printf("Decrypted Text: %v\n ", decryptedText)
 
@@ -89,6 +88,7 @@ func EncryptByCBCMode(key []byte, plainText string) ([]byte, error) {
 	}
 
 	paddedPlaintext := PadByPkcs7([]byte(plainText))
+	fmt.Printf("Original Plain Text in byte format: %v\n", []byte(plainText))
 	fmt.Printf("Padded Plain Text in byte format: %v\n", paddedPlaintext)
 	cipherText := make([]byte, aes.BlockSize + len(paddedPlaintext)) // cipher text must be larger than plaintext
 	iv := cipherText[:aes.BlockSize] // Unique iv is required
@@ -99,13 +99,14 @@ func EncryptByCBCMode(key []byte, plainText string) ([]byte, error) {
 	cbc := cipher.NewCBCEncrypter(block, iv)
 	cbc.CryptBlocks(cipherText[aes.BlockSize:], paddedPlaintext)
 
-	fmt.Println(cipherText)
+	fmt.Printf("IV: %v\n",iv)
+	fmt.Printf("Cipher Text With IV: %v\n",cipherText)
 
 	mac := hmac.New(sha256.New, []byte("12345678912345678912345678912345")) // sha256のhmac_key(32 byte)
 	mac.Write(cipherText)
 	cipherText = mac.Sum(cipherText)
 
-	fmt.Println(cipherText)
+	fmt.Printf("Cipher Text Appended MAC: %v\n",cipherText)
 
 	return []byte(cipherText), nil
 }
@@ -141,7 +142,7 @@ func DecryptByCBCMode(key []byte, cipherText []byte) (string, error) {
 	mac := hmac.New(sha256.New, []byte("12345678912345678912345678912345")) // sha256のhmac_key(32 byte)
 	mac.Write(cipherText)
 	expectedMAC := mac.Sum(nil)
-	hmac.Equal(mac_message, expectedMAC)
+	fmt.Println(hmac.Equal(mac_message, expectedMAC))
 
 	cbc := cipher.NewCBCDecrypter(block, iv)
 	cbc.CryptBlocks(plainText, cipherText)
