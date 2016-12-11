@@ -22,11 +22,11 @@ func main() {
 	// This will result in Panic
 	//fmt.Println(EncryptByBlockSecretKey(key, "123412341234123")) // Shorter than 16 byte
 
-	cipherText, _ := EncryptByBlockSecretKey(key, plainText)
-	fmt.Println(cipherText)
-
-	plainText = DecryptByBlockSecretKey(key, cipherText)
-	fmt.Println(plainText)
+	//cipherText, _ := EncryptByBlockSecretKey(key, plainText)
+	//fmt.Println(cipherText)
+	//
+	//plainText = DecryptByBlockSecretKey(key, cipherText)
+	//fmt.Println(plainText)
 
 	fmt.Println()
 
@@ -39,10 +39,10 @@ func main() {
 	fmt.Println()
 
 	plainText = "12345678912345671234123412341234"
-	cipherText, _ = EncryptByCBCMode(key, plainText) // 32byte
+	cipherText, _ := EncryptByCBCMode(key, plainText) // 32byte
 	fmt.Printf("Plaintext %v is encrypted into %v:\n", plainText, cipherText)
-	//decryptedText, _ = DecryptByCBCMode(key, cipherText)
-	//fmt.Printf("Decrypted Text: %v\n ", decryptedText)
+	decryptedText, _ := DecryptByCBCMode(key, cipherText)
+	fmt.Printf("Decrypted Text: %v\n ", decryptedText)
 
 	fmt.Println()
 
@@ -99,9 +99,13 @@ func EncryptByCBCMode(key []byte, plainText string) ([]byte, error) {
 	cbc := cipher.NewCBCEncrypter(block, iv)
 	cbc.CryptBlocks(cipherText[aes.BlockSize:], paddedPlaintext)
 
-	mac := hmac.New(sha256.New, []byte("12345678912345678912345678912345"))
+	fmt.Println(cipherText)
+
+	mac := hmac.New(sha256.New, []byte("12345678912345678912345678912345")) // sha256のhmac_key(32 byte)
 	mac.Write(cipherText)
 	cipherText = mac.Sum(cipherText)
+
+	fmt.Println(cipherText)
 
 	return []byte(cipherText), nil
 }
@@ -130,8 +134,14 @@ func DecryptByCBCMode(key []byte, cipherText []byte) (string, error) {
 		panic("cipher text must be multiple of blocksize(128bit)")
 	}
 	iv := cipherText[:aes.BlockSize] // assuming iv is stored in the first block of ciphertext
-	cipherText = cipherText[aes.BlockSize:]
+	mac_message := cipherText[len(cipherText) - sha256.Size:]
+	cipherText = cipherText[aes.BlockSize:len(cipherText) - sha256.Size]
 	plainText := make([]byte, len(cipherText))
+
+	mac := hmac.New(sha256.New, []byte("12345678912345678912345678912345")) // sha256のhmac_key(32 byte)
+	mac.Write(cipherText)
+	expectedMAC := mac.Sum(nil)
+	hmac.Equal(mac_message, expectedMAC)
 
 	cbc := cipher.NewCBCDecrypter(block, iv)
 	cbc.CryptBlocks(plainText, cipherText)
