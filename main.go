@@ -20,27 +20,27 @@ func main() {
 	key = []byte("1234123412341234") // AES-128
 	fmt.Println(EncryptByBlockSecretKey(key, "12341234123412345")) // Longer than 16 byte
 
-	// This will result in Panic
+	 //This will result in Panic
 	//fmt.Println(EncryptByBlockSecretKey(key, "123412341234123")) // Shorter than 16 byte
 
-	//cipherText, _ := EncryptByBlockSecretKey(key, plainText)
-	//fmt.Println(cipherText)
-	//
-	//plainText = DecryptByBlockSecretKey(key, cipherText)
-	//fmt.Println(plainText)
+	cipherText, _ := EncryptByBlockSecretKey(key, plainText)
+	fmt.Println(cipherText)
 
-	//plainText = "1234567891234567"
-	//cipherText, _ = EncryptByCBCMode(key, plainText) // 16bye
-	//fmt.Printf("Plaintext %v is encrypted into %v:\n", plainText, cipherText)
-	//decryptedText, _ := DecryptByCBCMode(key, cipherText)
-	//fmt.Printf("Decrypted Text: %v\n ", decryptedText)
+	plainText = DecryptByBlockSecretKey(key, cipherText)
+	fmt.Println(plainText)
+
+	plainText = "1234567891234567"
+	cipherText, _ = EncryptByCBCMode(key, plainText) // 16bye
+	fmt.Printf("Plaintext %v is encrypted into %v:\n", plainText, cipherText)
+	decryptedText, _ := DecryptByCBCMode(key, cipherText)
+	fmt.Printf("Decrypted Text: %v\n ", decryptedText)
 
 	plainText = "12345678912345671234123412341234"
-	cipherText, _ := EncryptByCBCMode(key, plainText) // 32byte
+	cipherText, _ = EncryptByCBCMode(key, plainText) // 32byte
 
 	fmt.Println()
 
-	decryptedText, _ := DecryptByCBCMode(key, cipherText)
+	decryptedText, _ = DecryptByCBCMode(key, cipherText)
 	fmt.Printf("Decrypted Text: %v\n ", decryptedText)
 
 
@@ -97,8 +97,8 @@ func EncryptByCBCMode(key []byte, plainText string) ([]byte, error) {
 	mac := hmac.New(sha256.New, []byte("12345678912345678912345678912345")) // sha256のhmac_key(32 byte)
 	mac.Write(cipherText)
 	cipherText = mac.Sum(cipherText)
-
 	macSize := len(cipherText) - sha256.Size
+
 	fmt.Println()
 	fmt.Printf("PlainText: %v\n", plainText)
 	fmt.Printf("Original Plain Text in byte format: %v\n", []byte(plainText))
