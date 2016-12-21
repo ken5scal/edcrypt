@@ -163,3 +163,7 @@ func DecryptByCBCMode(key []byte, cipherText []byte) (string, error) {
 func EncryptByGCM(key []byte, plainText string) ([]byte, error) {
 	return nil, error.Error("Failed")
 }
+
+func DecryptByGCM(key []byte, cipherText []byte) (string, error) {
+	return "", errors.New("Failed")
+}
