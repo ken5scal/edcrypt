@@ -124,6 +124,27 @@ func EncryptByCBCMode(key []byte, plainText string) ([]byte, error) {
 	return []byte(cipherText), nil
 }
 
+// GCM encryption
+func EncryptByGCM(key []byte, plainText string) ([]byte, error) {
+	block, err := aes.NewCipher(key); if err != nil {
+		return nil, err
+	}
+
+	gcm, err := cipher.NewGCM(block); if err != nil {
+		return nil, err
+	}
+
+	plainTextInByte := []byte(plainText)
+	//cipherText := make([]byte, len(plainTextInByte))
+	cipherText := gcm.Seal(nil, nil, plainTextInByte, nil)
+
+	fmt.Println()
+	fmt.Printf("PlainText: %v\n", plainText)
+	fmt.Printf("Cipher Text: %v\n", cipherText)
+
+	return cipherText, nil
+}
+
 /**
 	cipherText: PKCS#7 Pad + AES encrypted CipherText + SHA256 MAC Message
  */
@@ -157,11 +178,6 @@ func DecryptByCBCMode(key []byte, cipherText []byte) (string, error) {
 	fmt.Printf("Cipher Text: %v\n", cipherText[aes.BlockSize:macSize])
 
 	return string(UnPadByPkcs7(plainText)), nil
-}
-
-// GCM encryption
-func EncryptByGCM(key []byte, plainText string) ([]byte, error) {
-	return nil, error.Error("Failed")
 }
 
 func DecryptByGCM(key []byte, cipherText []byte) (string, error) {
