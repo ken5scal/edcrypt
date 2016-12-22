@@ -43,8 +43,10 @@ func main() {
 	decryptedText, _ = DecryptByCBCMode(key, cipherText)
 	fmt.Printf("Decrypted Text: %v\n ", decryptedText)
 
+	fmt.Println()
 
-
+	cipherText, _ = EncryptByGCM(key, plainText)
+	fmt.Printf("Encrypted using GCM: %v\n", cipherText)
 	//plainText = "12345"
 	//cipherText, _ = EncryptByCBCMode(key, plainText)
 	//fmt.Printf("Plaintext %v is encrypted into %v:\n", plainText, cipherText)
