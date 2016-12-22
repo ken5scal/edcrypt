@@ -136,13 +136,12 @@ func EncryptByGCM(key []byte, plainText string) ([]byte, error) {
 		return nil, err
 	}
 
-	nonce := make([]byte, gcm.NonceSize())// Unique iv is required
+	nonce := make([]byte, gcm.NonceSize())// Unique nonce is required(NonceSize 12byte)
 	_, err = rand.Read(nonce); if err != nil {
 		return nil, err
 	}
 
 	plainTextInByte := []byte(plainText)
-	//cipherText := make([]byte, len(plainTextInByte))
 	cipherText := gcm.Seal(nil, nonce, plainTextInByte, nil)
 
 	fmt.Println()
