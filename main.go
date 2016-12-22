@@ -136,9 +136,14 @@ func EncryptByGCM(key []byte, plainText string) ([]byte, error) {
 		return nil, err
 	}
 
+	nonce := make([]byte, gcm.NonceSize())// Unique iv is required
+	_, err = rand.Read(nonce); if err != nil {
+		return nil, err
+	}
+
 	plainTextInByte := []byte(plainText)
 	//cipherText := make([]byte, len(plainTextInByte))
-	cipherText := gcm.Seal(nil, nil, plainTextInByte, nil)
+	cipherText := gcm.Seal(nil, nonce, plainTextInByte, nil)
 
 	fmt.Println()
 	fmt.Printf("PlainText: %v\n", plainText)
