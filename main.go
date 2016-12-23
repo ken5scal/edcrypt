@@ -187,5 +187,13 @@ func DecryptByCBCMode(key []byte, cipherText []byte) (string, error) {
 }
 
 func DecryptByGCM(key []byte, cipherText []byte) (string, error) {
+	block, err := aes.NewCipher(key); if err != nil {
+		return "", err
+	}
+	gcm, err := cipher.NewGCM(block); if err != nil {
+		return nil, err
+	}
+	gcm.Open()
+
 	return "", errors.New("Failed")
 }
