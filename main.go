@@ -35,7 +35,7 @@ func main() {
 	decryptedText, _ := DecryptByCBCMode(key, cipherText)
 	fmt.Printf("Decrypted Text: %v\n ", decryptedText)
 
-	plainText = "12345678912345671234123412341234"
+	plainText = "12345"
 	cipherText, _ = EncryptByCBCMode(key, plainText) // 32byte
 
 	fmt.Println()
@@ -45,8 +45,10 @@ func main() {
 
 	fmt.Println()
 
-	cipherText, _ = EncryptByGCM(key, plainText)
+	cipherText, _ = EncryptByGCM(key, "12345")
 	fmt.Printf("Encrypted using GCM: %v\n", cipherText)
+	decryptedText, _ = DecryptByGCM(key, cipherText)
+	fmt.Printf("Decrypted Text: %v\n ", decryptedText)
 	//plainText = "12345"
 	//cipherText, _ = EncryptByCBCMode(key, plainText)
 	//fmt.Printf("Plaintext %v is encrypted into %v:\n", plainText, cipherText)
@@ -143,10 +145,7 @@ func EncryptByGCM(key []byte, plainText string) ([]byte, error) {
 
 	plainTextInByte := []byte(plainText)
 	cipherText := gcm.Seal(nil, nonce, plainTextInByte, nil)
-
-	fmt.Println()
-	fmt.Printf("PlainText: %v\n", plainText)
-	fmt.Printf("Cipher Text: %v\n", cipherText)
+	cipherText = append(nonce, cipherText...)
 
 	return cipherText, nil
 }
@@ -194,12 +193,8 @@ func DecryptByGCM(key []byte, cipherText []byte) (string, error) {
 		return "", err
 	}
 
-	nonce := make([]byte, gcm.NonceSize())// Unique nonce is required(NonceSize 12byte)
-	_, err = rand.Read(nonce); if err != nil {
-		return "", err
-	}
-
-	plainByte, err := gcm.Open(nil, nonce, cipherText, nil); if err != nil {
+	nonce := cipherText[:gcm.NonceSize()]
+	plainByte, err := gcm.Open(nil, nonce, cipherText[gcm.NonceSize():], nil); if err != nil {
 		return "", err
 	}
 
