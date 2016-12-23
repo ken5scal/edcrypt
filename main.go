@@ -191,9 +191,17 @@ func DecryptByGCM(key []byte, cipherText []byte) (string, error) {
 		return "", err
 	}
 	gcm, err := cipher.NewGCM(block); if err != nil {
-		return nil, err
+		return "", err
 	}
-	gcm.Open()
 
-	return "", errors.New("Failed")
+	nonce := make([]byte, gcm.NonceSize())// Unique nonce is required(NonceSize 12byte)
+	_, err = rand.Read(nonce); if err != nil {
+		return "", err
+	}
+
+	plainByte, err := gcm.Open(nil, nonce, cipherText, nil); if err != nil {
+		return "", err
+	}
+
+	return string(plainByte), nil
 }
