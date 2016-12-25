@@ -143,8 +143,7 @@ func EncryptByGCM(key []byte, plainText string) ([]byte, error) {
 		return nil, err
 	}
 
-	plainTextInByte := []byte(plainText)
-	cipherText := gcm.Seal(nil, nonce, plainTextInByte, nil)
+	cipherText := gcm.Seal(nil, nonce, []byte(plainText), nil)
 	cipherText = append(nonce, cipherText...)
 
 	return cipherText, nil
